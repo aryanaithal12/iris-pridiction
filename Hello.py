@@ -1,51 +1,83 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import streamlit as st
-from streamlit.logger import get_logger
+from sklearn import datasets
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
 
-LOGGER = get_logger(__name__)
+st.write("""
+## A Model that predicts the type of iris based on inputs
 
+This web app aims at predicting isri type """)
 
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+st.sidebar.write("""### User input parameters""")
 
-    st.write("# Welcome to Streamlit! 👋")
-
-    st.sidebar.success("Select a demo above.")
-
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+def inputs():
+    sl = st.sidebar.slider("Sepal length", 4.3, 7.9,5.0)
+    sw = st.sidebar.slider("Sepal width", 2.0, 4.4,3.0)
+    pl = st.sidebar.slider("Petal length", 1.0, 6.9,2.0)
+    pw = st.sidebar.slider("Petal width", 0.1, 2.5,1.0)
+    data = {"sepal_length": sl,
+            "sepal_width": sw,
+            "petal_length": pl,
+            "petal_width": pw}
+    df = pd.DataFrame(data, index=[0])
+    return df
 
 
-if __name__ == "__main__":
-    run()
+features = inputs()
+features.reset_index(drop=False, inplace=False)
+st.subheader("User inputs: ")
+st.write(features)
+iris = datasets.load_iris()
+X, Y = iris.data, iris.target
+clf = RandomForestClassifier()
+clf.fit(X, Y)
+prediction = clf.predict(features)
+st.subheader("Possible iris types: ")
+st.write(iris.target_names)
+st.subheader("Prediction for user input: ")
+st.write(iris.target_names[prediction])
+
+st.subheader("Code:")
+st.write("""
+~~~
+import streamlit as st
+from sklearn import datasets
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+
+st.write("
+## A Model that predicts the type of iris based on inputs
+
+This web app aims at predicting isri type ")
+
+st.sidebar.write("### User input parameters")
+
+def inputs():
+    sl = st.sidebar.slider("Sepal length", 4.3, 7.9,5.0)
+    sw = st.sidebar.slider("Sepal width", 2.0, 4.4,3.0)
+    pl = st.sidebar.slider("Petal length", 1.0, 6.9,2.0)
+    pw = st.sidebar.slider("Petal width", 0.1, 2.5,1.0)
+    data = {"sepal_length": sl,
+            "sepal_width": sw,
+            "petal_length": pl,
+            "petal_width": pw}
+    df = pd.DataFrame(data, index=[0])
+    return df
+
+
+features = inputs()
+features.reset_index(drop=False, inplace=False)
+st.subheader("User inputs: ")
+st.write(features)
+iris = datasets.load_iris()
+X, Y = iris.data, iris.target
+clf = RandomForestClassifier()
+clf.fit(X, Y)
+prediction = clf.predict(features)
+st.subheader("Possible iris types: ")
+st.write(iris.target_names)
+st.subheader("Prediction for user input: ")
+st.write(iris.target_names[prediction])
+
+~~~""")
